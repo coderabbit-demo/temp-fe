@@ -51,8 +51,8 @@ export function resolveDateRange(
   if (filters.start || filters.end) {
     return {
       label: "Custom range",
-      start: filters.start,
-      end: filters.end
+      start: normalizeDateBoundary(filters.start, "start"),
+      end: normalizeDateBoundary(filters.end, "end")
     };
   }
 
@@ -69,6 +69,23 @@ export function resolveDateRange(
   }
 
   return { label: "All time" };
+}
+
+function normalizeDateBoundary(
+  value: string | undefined,
+  boundary: "start" | "end"
+): string | undefined {
+  if (!value) {
+    return undefined;
+  }
+
+  if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    return boundary === "start"
+      ? `${value}T00:00:00.000Z`
+      : `${value}T23:59:59.999Z`;
+  }
+
+  return value;
 }
 
 export function historyBandMatches(historyBand: string | undefined, ageInDays: number): boolean {

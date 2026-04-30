@@ -4,6 +4,8 @@ import { EmptyState } from "@/components/research/empty-state";
 import { formatDate, formatDateTime } from "@/lib/competitor-dashboard/format";
 import { buildCompetitorSummary, getDashboardContext } from "@/lib/competitor-dashboard/queries";
 
+export const dynamic = "force-dynamic";
+
 export default async function CompetitorsPage() {
   const context = await getDashboardContext({});
 

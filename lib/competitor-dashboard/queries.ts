@@ -271,11 +271,15 @@ function reportMatchesFilters(
     return false;
   }
 
-  if (resolvedRange.start && report.generatedAt < resolvedRange.start) {
+  const reportGeneratedAt = Date.parse(report.generatedAt);
+  const rangeStart = resolvedRange.start ? Date.parse(resolvedRange.start) : NaN;
+  const rangeEnd = resolvedRange.end ? Date.parse(resolvedRange.end) : NaN;
+
+  if (!Number.isNaN(rangeStart) && reportGeneratedAt < rangeStart) {
     return false;
   }
 
-  if (resolvedRange.end && report.generatedAt > resolvedRange.end) {
+  if (!Number.isNaN(rangeEnd) && reportGeneratedAt > rangeEnd) {
     return false;
   }
 

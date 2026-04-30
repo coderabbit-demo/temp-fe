@@ -2,6 +2,8 @@ import { EmptyState } from "@/components/research/empty-state";
 import { formatDateTime } from "@/lib/competitor-dashboard/format";
 import { getDashboardContext } from "@/lib/competitor-dashboard/queries";
 
+export const dynamic = "force-dynamic";
+
 export default async function SettingsPage() {
   const context = await getDashboardContext({});
   if (!context) {
