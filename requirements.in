@@ -10,3 +10,5 @@ requests
 flask_limiter
 ddtrace
 lxml
+Pillow
+reportlab

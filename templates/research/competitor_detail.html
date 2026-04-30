@@ -1,0 +1,58 @@
+{% extends "research/base.html" %}
+{% block content %}
+<section class="section-heading">
+  <h3>{{ competitor.name }}</h3>
+  <p>Compare competitor-specific reports across sweep runs, windows, and validation states.</p>
+</section>
+
+<section class="stats-grid">
+  {% for row in counts %}
+  <article class="stat-card">
+    <div class="muted-label">{{ row.validation_status }}</div>
+    <div class="stat-number">{{ row.count }}</div>
+  </article>
+  {% endfor %}
+</section>
+
+<div class="table-shell">
+  <table class="table table-sm align-middle research-table">
+    <thead>
+      <tr>
+        <th>Report</th>
+        <th>Sweep run date</th>
+        <th>Run ID</th>
+        <th>Window</th>
+        <th>Findings</th>
+        <th>Newest finding</th>
+        <th>Status</th>
+        <th>Latest changelog</th>
+        <th>Artifacts</th>
+        <th>Generated at</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for report in reports %}
+      <tr>
+        <td><a href="{{ url_for('research.report_detail', report_id=report.id) }}">{{ report.report_uid }}</a></td>
+        <td>{{ report.sweep_run_date }}</td>
+        <td>{{ report.run_id }}</td>
+        <td>{{ report.report_window_label }}</td>
+        <td>{{ report.findings_count }}</td>
+        <td>{{ report.newest_finding_date or 'None' }}</td>
+        <td><span class="status-chip {{ report.validation_status|lower|replace(' ', '-') }}">{{ report.validation_status }}</span></td>
+        <td>{% if report.latest_changelog_found %}Found{% else %}Missing{% endif %}</td>
+        <td>
+          {% set artifacts = artifact_index.get(report.id, []) %}
+          {% for artifact in artifacts %}
+          <a href="{{ url_for('research.artifact_download', artifact_id=artifact.id) }}">{{ artifact.artifact_kind|upper }}</a>{% if not loop.last %} · {% endif %}
+          {% else %}
+          —
+          {% endfor %}
+        </td>
+        <td>{{ report.generated_at }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

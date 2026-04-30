@@ -1,0 +1,143 @@
+{% extends "research/base.html" %}
+{% block content %}
+<section class="section-heading">
+  <h3>{{ report.competitor_name }}</h3>
+  <p>Report generated at {{ report.report_generated_at }} for run {{ report.run_id }}. Window used: {{ report.report_window_label }}.</p>
+</section>
+
+<section class="stats-grid">
+  <article class="stat-card">
+    <div class="muted-label">Sweep run date</div>
+    <div class="stat-number small">{{ report.sweep_run_date }}</div>
+  </article>
+  <article class="stat-card">
+    <div class="muted-label">Findings</div>
+    <div class="stat-number">{{ report.findings_count }}</div>
+  </article>
+  <article class="stat-card">
+    <div class="muted-label">Validation coverage</div>
+    <div class="stat-number small">{{ report.validation_coverage }}</div>
+  </article>
+  <article class="stat-card">
+    <div class="muted-label">Latest changelog</div>
+    <div class="stat-number small">{% if report.latest_changelog_found %}Found{% else %}Missing{% endif %}</div>
+  </article>
+</section>
+
+<section class="detail-grid">
+  <article class="detail-panel">
+    <h4>Report metadata</h4>
+    <dl class="detail-list">
+      <div><dt>Report UID</dt><dd>{{ report.report_uid }}</dd></div>
+      <div><dt>Report window</dt><dd>{{ report.report_window_label }}</dd></div>
+      <div><dt>Window start</dt><dd>{{ report.report_window_start }}</dd></div>
+      <div><dt>Window end</dt><dd>{{ report.report_window_end }}</dd></div>
+      <div><dt>Newest finding date</dt><dd>{{ report.newest_finding_date or 'None' }}</dd></div>
+      <div><dt>Status</dt><dd><span class="status-chip {{ report.validation_status|lower|replace(' ', '-') }}">{{ report.validation_status }}</span></dd></div>
+      <div><dt>Latest changelog date</dt><dd>{{ report.latest_changelog_date or 'Not found' }}</dd></div>
+      <div><dt>Last updated</dt><dd>{{ report.updated_at }}</dd></div>
+    </dl>
+  </article>
+
+  <article class="detail-panel">
+    <h4>Artifacts</h4>
+    <ul class="plain-list">
+      {% for artifact in artifacts %}
+      <li><a href="{{ url_for('research.artifact_download', artifact_id=artifact.id) }}">{{ artifact.title }}</a> <span class="cell-subtle">{{ artifact.mime_type }}</span></li>
+      {% else %}
+      <li>No artifacts linked.</li>
+      {% endfor %}
+    </ul>
+    <h4 class="mt-4">Report source ledger</h4>
+    {% for level in [1, 2, 3] %}
+    <div class="source-ledger-block">
+      <strong>Level {{ level }}</strong>
+      <ul class="plain-list">
+        {% for source in report_sources_by_level[level] %}
+        <li><a href="{{ source.url }}" target="_blank" rel="noreferrer">{{ source.title }}</a> <span class="cell-subtle">{{ source.source_bucket }}</span></li>
+        {% else %}
+        <li>None listed.</li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% endfor %}
+  </article>
+</section>
+
+<section class="section-heading">
+  <h3>Recent finding log</h3>
+  <p>Newest first. Each finding carries its own claim, interpretation, validation state, and source ledger split by source level.</p>
+</section>
+
+<div class="finding-stack">
+  {% for finding in findings %}
+  <article class="finding-card">
+    <div class="report-card-top">
+      <div>
+        <div class="muted-label">{{ finding.finding_type }} | {{ finding.finding_date }}</div>
+        <h4>{{ finding.claim }}</h4>
+      </div>
+      <span class="status-chip {{ finding.validation_status|lower|replace(' ', '-') }}">{{ finding.validation_status }}</span>
+    </div>
+
+    <div class="finding-section">
+      <h5>Supporting details</h5>
+      <ul>
+        {% for bullet in finding.supporting_details %}
+        <li>{{ bullet }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <div class="finding-section">
+      <h5>Why it matters</h5>
+      <ul>
+        {% for bullet in finding.why_it_matters %}
+        <li>{{ bullet }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <div class="finding-section">
+      <h5>CodeRabbit comparison</h5>
+      <ul>
+        <li><strong>Status:</strong> {{ finding.coderabbit_status }}</li>
+        {% for bullet in finding.coderabbit_evidence %}
+        <li>{{ bullet }}</li>
+        {% endfor %}
+        {% for bullet in finding.competitive_takeaway %}
+        <li>{{ bullet }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <div class="finding-section">
+      <h5>Suggested positioning</h5>
+      <ul>
+        {% for bullet in finding.suggested_positioning %}
+        <li>{{ bullet }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <div class="finding-section">
+      <h5>Source ledger</h5>
+      <div class="ledger-grid">
+        {% for level in [1, 2, 3] %}
+        <div class="source-ledger-block">
+          <strong>Level {{ level }}</strong>
+          <ul class="plain-list">
+            {% for source in finding.sources_by_level[level] %}
+            <li><a href="{{ source.url }}" target="_blank" rel="noreferrer">{{ source.title }}</a> <span class="cell-subtle">{{ source.source_bucket }}</span></li>
+            {% else %}
+            <li>None listed.</li>
+            {% endfor %}
+          </ul>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </article>
+  {% endfor %}
+</div>
+{% endblock %}

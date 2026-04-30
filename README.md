@@ -2,6 +2,16 @@
 
 A temporary frontend for new api functions, before we can redo them in react.
 
+# Competitor Research Dashboard
+
+This repo now includes an internal dashboard for historical competitor sweep reports.
+
+- Dashboard home: `/research/dashboard`
+- In-app spec and operating notes: `/research/settings`
+- Repo documentation: `docs/competitor_research_dashboard.md`
+
+Use this to review separate competitor report records across sweep runs, inspect finding validation state, and pull PDF/PNG artifacts for fast internal demo prep.
+
 # deployment
 
 ```
@@ -21,4 +31,3 @@ kubectl get service
 <img width="861" alt="image" src="https://github.com/ff14-advanced-market-search/temp-fe/assets/17516896/f03d3506-8aea-4a85-93fd-1e17615c1f6c">
 
 <img width="856" alt="image" src="https://github.com/ff14-advanced-market-search/temp-fe/assets/17516896/885d4b82-9f2a-49ee-a0c2-31f2b4e7641f">
-

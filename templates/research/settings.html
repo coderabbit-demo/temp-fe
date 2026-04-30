@@ -1,0 +1,94 @@
+{% extends "research/base.html" %}
+{% block content %}
+<section class="detail-grid">
+  <article class="detail-panel">
+    <h3>Product spec</h3>
+    <ul>
+      <li>Dashboard home with historical archive, recent-first sorting, and pinned URL-driven filters.</li>
+      <li>Separate competitor reports for GitHub Copilot, Cursor / Bugbot, Qodo, Greptile, Gemini Code Assist, Claude Code / Anthropic, and Cubic.</li>
+      <li>Historical preservation model where one sweep run inserts multiple competitor-specific reports instead of a merged report.</li>
+      <li>Detail page per competitor report with finding log, validation state, CodeRabbit comparison, and Level 1 / 2 / 3 source ledger.</li>
+      <li>History browsing by date preset, archive band, custom range, and run ID.</li>
+      <li>Artifact download support for source PDF and PNG previews when attached.</li>
+    </ul>
+  </article>
+
+  <article class="detail-panel">
+    <h3>Recommended architecture</h3>
+    <ul>
+      <li>Frontend: Flask-rendered analytics UI with Bootstrap and a compact dashboard stylesheet.</li>
+      <li>Backend/API: Flask blueprint plus JSON endpoints for reports, report detail, findings, and sources.</li>
+      <li>Storage: SQLite for preserved metadata and file storage for PDF/PNG artifacts.</li>
+      <li>Ingestion: JSON payload per sweep run that inserts one run record and multiple competitor report records.</li>
+    </ul>
+  </article>
+</section>
+
+<section class="detail-panel mt-4">
+  <h3>Access and purpose</h3>
+  <dl class="detail-list">
+    <div><dt>Dashboard home</dt><dd><code>/research/dashboard</code></dd></div>
+    <div><dt>Purpose</dt><dd>Give internal teams one place to review historical competitor sweep reports, compare runs over time, and open validated recent findings quickly.</dd></div>
+    <div><dt>Primary audience</dt><dd>Sales Engineers preparing demos, competitive follow-ups, and fast internal refreshes before customer meetings.</dd></div>
+    <div><dt>Repo documentation</dt><dd><code>docs/competitor_research_dashboard.md</code></dd></div>
+  </dl>
+</section>
+
+<section class="detail-panel mt-4">
+  <h3>SE use cases</h3>
+  <ul>
+    <li>Prep for a live demo by filtering to one competitor and the last 30 days.</li>
+    <li>Check whether a recent competitor claim is validated before using it in a conversation.</li>
+    <li>Compare multiple runs for the same competitor to show movement over time.</li>
+    <li>Pull PDF and PNG artifacts quickly when a stakeholder needs supporting material.</li>
+    <li>Use saved views to scan missing changelog coverage or community-signal-heavy reports.</li>
+  </ul>
+</section>
+
+<section class="detail-panel mt-4">
+  <h3>Technical questions answered</h3>
+  <dl class="detail-list">
+    <div><dt>1. Database vs static JSON</dt><dd>{{ stack_answers.question_1 }}</dd></div>
+    <div><dt>2. Recommended DB</dt><dd>{{ stack_answers.question_2 }}</dd></div>
+    <div><dt>3. Schema + seed + ingestion</dt><dd>{{ stack_answers.question_3 }}</dd></div>
+    <div><dt>4. Simplest production-ready stack</dt><dd>{{ stack_answers.question_4 }}</dd></div>
+  </dl>
+</section>
+
+<section class="detail-panel mt-4">
+  <h3>Database schema</h3>
+  <div class="table-shell">
+    <table class="table table-sm research-table">
+      <thead>
+        <tr>
+          <th>Entity</th>
+          <th>Purpose</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>competitors</td><td>Canonical competitor entities used across all sweep runs.</td></tr>
+        <tr><td>sweep_runs</td><td>Top-level run metadata for each sweep execution.</td></tr>
+        <tr><td>competitor_reports</td><td>Separate report records created per competitor for each run.</td></tr>
+        <tr><td>findings</td><td>Historical findings stored newest-first per competitor report.</td></tr>
+        <tr><td>sources</td><td>Source ledger with Level 1, Level 2, and Level 3 separation.</td></tr>
+        <tr><td>artifacts</td><td>PDF and PNG assets linked to a competitor report.</td></tr>
+        <tr><td>tags</td><td>Reusable tags for finding categorization.</td></tr>
+        <tr><td>finding_tags</td><td>Join table for finding-to-tag relationships.</td></tr>
+        <tr><td>validation_flags</td><td>Per-report and per-finding validation notes.</td></tr>
+        <tr><td>saved_views</td><td>Shareable preset filter states for repeat slices.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="detail-panel mt-4">
+  <h3>How ingestion works</h3>
+  <ol>
+    <li>A sweep produces one JSON payload with one run record plus multiple competitor-specific reports.</li>
+    <li><code>scripts/ingest_competitor_sweep.py</code> validates the payload and inserts the run without overwriting history.</li>
+    <li>Each report stores the report window used, latest changelog state, validation coverage, findings, sources, artifacts, tags, and flags.</li>
+    <li>The dashboard reads preserved records directly from SQLite and exposes them through server-rendered pages and JSON endpoints.</li>
+  </ol>
+  <p class="cell-subtle mb-0">The seeded data in this prototype is illustrative sample data for validating the archive UX and ingestion model.</p>
+</section>
+{% endblock %}

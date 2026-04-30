@@ -1,0 +1,222 @@
+{% extends "research/base.html" %}
+{% block content %}
+<section class="stats-grid">
+  <article class="stat-card">
+    <div class="muted-label">Reports</div>
+    <div class="stat-number">{{ report_summary.overview.report_count or 0 }}</div>
+  </article>
+  <article class="stat-card">
+    <div class="muted-label">Competitors</div>
+    <div class="stat-number">{{ report_summary.overview.competitor_count or 0 }}</div>
+  </article>
+  <article class="stat-card">
+    <div class="muted-label">Sweep runs</div>
+    <div class="stat-number">{{ report_summary.overview.run_count or 0 }}</div>
+  </article>
+  <article class="stat-card">
+    <div class="muted-label">Artifacts</div>
+    <div class="stat-number">{{ report_summary.artifacts or 0 }}</div>
+  </article>
+  <article class="stat-card">
+    <div class="muted-label">Archive last updated</div>
+    <div class="stat-number small">{{ report_summary.overview.last_updated or 'Unknown' }}</div>
+  </article>
+</section>
+
+<section class="sticky-filters">
+  <form class="filter-panel" method="get" action="{{ url_for('research.dashboard') }}">
+    <div class="filter-grid">
+      <label>
+        <span>Competitor</span>
+        <select name="competitor" class="form-select form-select-sm">
+          <option value="">All competitors</option>
+          {% for competitor in competitors %}
+          <option value="{{ competitor.slug }}" {% if filters.competitor == competitor.slug %}selected{% endif %}>{{ competitor.name }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>
+        <span>Date preset</span>
+        <select name="preset" class="form-select form-select-sm">
+          <option value="">Any preset</option>
+          {% for preset in date_presets %}
+          <option value="{{ preset.value }}" {% if filters.preset == preset.value %}selected{% endif %}>{{ preset.label }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>
+        <span>Custom start</span>
+        <input class="form-control form-control-sm" type="date" name="start_date" value="{{ filters.start_date }}">
+      </label>
+      <label>
+        <span>Custom end</span>
+        <input class="form-control form-control-sm" type="date" name="end_date" value="{{ filters.end_date }}">
+      </label>
+      <label>
+        <span>Source level</span>
+        <select name="source_level" class="form-select form-select-sm">
+          <option value="">Any level</option>
+          {% for level in source_levels %}
+          <option value="{{ level.value }}" {% if filters.source_level == level.value %}selected{% endif %}>{{ level.label }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>
+        <span>Validation</span>
+        <select name="validation_status" class="form-select form-select-sm">
+          <option value="">Any status</option>
+          {% for status in validation_statuses %}
+          <option value="{{ status }}" {% if filters.validation_status == status %}selected{% endif %}>{{ status }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>
+        <span>History band</span>
+        <select name="history_band" class="form-select form-select-sm">
+          <option value="">Any band</option>
+          {% for band in history_bands %}
+          <option value="{{ band.value }}" {% if filters.history_band == band.value %}selected{% endif %}>{{ band.label }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>
+        <span>Run ID</span>
+        <select name="report_run_id" class="form-select form-select-sm">
+          <option value="">Any run</option>
+          {% for run in run_rows %}
+          <option value="{{ run.run_id }}" {% if filters.report_run_id == run.run_id %}selected{% endif %}>{{ run.run_id }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>
+        <span>Latest changelog</span>
+        <select name="latest_changelog_found" class="form-select form-select-sm">
+          <option value="">Any state</option>
+          <option value="1" {% if filters.latest_changelog_found == '1' %}selected{% endif %}>Found</option>
+          <option value="0" {% if filters.latest_changelog_found == '0' %}selected{% endif %}>Missing</option>
+        </select>
+      </label>
+      <label class="search-field">
+        <span>Search findings and sources</span>
+        <input class="form-control form-control-sm" type="search" name="q" value="{{ filters.q }}" placeholder="claim, source title, URL, notes">
+      </label>
+      <input type="hidden" name="view" value="{{ view_mode }}">
+    </div>
+    <div class="filter-actions">
+      <button class="btn btn-sm btn-primary" type="submit">Apply filters</button>
+      <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('research.dashboard') }}">Clear</a>
+      <div class="view-toggle">
+        <a class="btn btn-sm {% if view_mode == 'table' %}btn-dark{% else %}btn-outline-dark{% endif %}" href="{{ url_for('research.dashboard', competitor=filters.competitor, preset=filters.preset, start_date=filters.start_date, end_date=filters.end_date, source_level=filters.source_level, validation_status=filters.validation_status, report_run_id=filters.report_run_id, history_band=filters.history_band, latest_changelog_found=filters.latest_changelog_found, q=filters.q, view='table') }}">Table</a>
+        <a class="btn btn-sm {% if view_mode == 'cards' %}btn-dark{% else %}btn-outline-dark{% endif %}" href="{{ url_for('research.dashboard', competitor=filters.competitor, preset=filters.preset, start_date=filters.start_date, end_date=filters.end_date, source_level=filters.source_level, validation_status=filters.validation_status, report_run_id=filters.report_run_id, history_band=filters.history_band, latest_changelog_found=filters.latest_changelog_found, q=filters.q, view='cards') }}">Cards</a>
+      </div>
+    </div>
+    {% if active_filter_chips %}
+    <div class="chip-row">
+      {% for label, value in active_filter_chips %}
+      <span class="filter-chip"><strong>{{ label }}:</strong> {{ value }}</span>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </form>
+</section>
+
+<section class="saved-views">
+  <div class="section-heading">
+    <h3>Saved views</h3>
+    <p>Common slices for review workflows and repeat archive checks.</p>
+  </div>
+  <div class="saved-view-grid">
+    {% for view in saved_views %}
+    <a class="saved-view-card" href="{{ url_for('research.dashboard') }}?{{ view.query_string }}">
+      <strong>{{ view.name }}</strong>
+      <span>{{ view.description }}</span>
+    </a>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="section-heading">
+  <h3>Report archive</h3>
+  <p>Separate competitor report records per sweep run. Default sort is newest first.</p>
+</section>
+
+{% if view_mode == 'cards' %}
+<section class="report-card-grid">
+  {% for report in reports %}
+  <article class="report-card">
+    <div class="report-card-top">
+      <div>
+        <div class="muted-label">{{ report.run_id }}</div>
+        <h4><a href="{{ url_for('research.report_detail', report_id=report.id) }}">{{ report.competitor_name }}</a></h4>
+      </div>
+      <span class="status-chip {{ report.validation_status|lower|replace(' ', '-') }}">{{ report.validation_status }}</span>
+    </div>
+    <dl class="report-metrics">
+      <div><dt>Sweep run date</dt><dd>{{ report.sweep_run_date }}</dd></div>
+      <div><dt>Window</dt><dd>{{ report.report_window_label }}</dd></div>
+      <div><dt>Findings</dt><dd>{{ report.findings_count }}</dd></div>
+      <div><dt>Newest finding</dt><dd>{{ report.newest_finding_date or 'None' }}</dd></div>
+      <div><dt>Validation coverage</dt><dd>{{ report.validation_coverage }}</dd></div>
+      <div><dt>Latest changelog</dt><dd>{% if report.latest_changelog_found %}Found{% else %}Missing{% endif %}</dd></div>
+    </dl>
+    <div class="artifact-link-row">
+      {% set artifacts = artifact_index.get(report.id, []) %}
+      {% for artifact in artifacts %}
+      <a href="{{ url_for('research.artifact_download', artifact_id=artifact.id) }}">{{ artifact.artifact_kind|upper }}</a>{% if not loop.last %} · {% endif %}
+      {% endfor %}
+      {% if artifacts %}<br>{% endif %}
+      <a href="{{ url_for('research.competitor_detail', slug=report.competitor_slug) }}">Compare runs</a>
+    </div>
+  </article>
+  {% endfor %}
+</section>
+{% else %}
+<div class="table-shell">
+  <table class="table table-sm align-middle research-table">
+    <thead>
+      <tr>
+        <th>Competitor</th>
+        <th>Sweep run date</th>
+        <th>Run ID</th>
+        <th>Window</th>
+        <th>Findings</th>
+        <th>Newest finding</th>
+        <th>Validation coverage</th>
+        <th>Status</th>
+        <th>Latest changelog</th>
+        <th>Generated at</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for report in reports %}
+      <tr>
+        <td>
+          <a href="{{ url_for('research.report_detail', report_id=report.id) }}">{{ report.competitor_name }}</a>
+          <div class="cell-subtle"><a href="{{ url_for('research.competitor_detail', slug=report.competitor_slug) }}">Compare runs</a></div>
+        </td>
+        <td>{{ report.sweep_run_date }}</td>
+        <td>{{ report.run_id }}</td>
+        <td>{{ report.report_window_label }}</td>
+        <td>{{ report.findings_count }}</td>
+        <td>{{ report.newest_finding_date or 'None' }}</td>
+        <td>{{ report.validation_coverage }}</td>
+        <td><span class="status-chip {{ report.validation_status|lower|replace(' ', '-') }}">{{ report.validation_status }}</span></td>
+        <td>{% if report.latest_changelog_found %}Found{% else %}Missing{% endif %}</td>
+        <td>
+          {{ report.generated_at }}
+          {% set artifacts = artifact_index.get(report.id, []) %}
+          {% if artifacts %}
+          <div class="cell-subtle">
+            {% for artifact in artifacts %}
+            <a href="{{ url_for('research.artifact_download', artifact_id=artifact.id) }}">{{ artifact.artifact_kind|upper }}</a>{% if not loop.last %} · {% endif %}
+            {% endfor %}
+          </div>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endif %}
+{% endblock %}

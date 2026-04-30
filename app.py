@@ -16,6 +16,7 @@ from ddtrace.profiling import Profiler
 
 from routes.ffxiv import ffxiv_bp
 from routes.general import general_bp
+from routes.competitor_dashboard import research_bp
 from routes.wow import wow_bp
 from utils.security import add_security_headers, return_safe_html
 
@@ -59,10 +60,21 @@ origins = [
 CORS(app, resources={r"/*": {"origins": origins}})
 
 # Check for NO_RATE_LIMIT environment variable
-NO_RATE_LIMIT = os.getenv("NO_RATE_LIMIT", False)
+NO_RATE_LIMIT = str(os.getenv("NO_RATE_LIMIT", "")).strip().lower() in {
+    "1",
+    "true",
+    "yes",
+    "on",
+}
+limiter = None
 if not NO_RATE_LIMIT:
     # Apply rate limit if NO_RATE_LIMIT is not set
-    limiter = Limiter(get_remote_address, app=app, default_limits=["1 per second"])
+    limiter = Limiter(
+        get_remote_address,
+        app=app,
+        default_limits=["1 per second"],
+        storage_uri="memory://",
+    )
 
 # Set the logging level to INFO for the Flask app
 app.logger.setLevel(logging.INFO)
@@ -103,6 +115,12 @@ app.logger.addHandler(custom_handler)
 app.register_blueprint(wow_bp)
 app.register_blueprint(ffxiv_bp)
 app.register_blueprint(general_bp)
+app.register_blueprint(research_bp)
+
+if limiter is not None:
+    # The internal research dashboard relies on rapid filter changes, archive scans,
+    # and report-detail hops, so the app-wide 1 rps limit makes normal use fail.
+    limiter.exempt(research_bp)
 
 
 # Use add_security_headers from utils/security.py
