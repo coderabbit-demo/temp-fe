@@ -1,3 +1,15 @@
-__pycache__/
+node_modules/
+.next/
+dist/
+
 .env
-instance/
+.env.local
+
+data/*.json
+!data/.gitkeep
+
+outputs/competitor-dashboard-artifacts/**
+!outputs/competitor-dashboard-artifacts/.gitkeep
+
+coverage/
+npm-debug.log*

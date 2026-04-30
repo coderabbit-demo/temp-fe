@@ -1,0 +1,27 @@
+{
+  "name": "competitor-research-dashboard",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "install": "node scripts/install.mjs",
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "seed": "tsx scripts/seed.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "next": "14.2.5",
+    "pdf-lib": "1.17.1",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "pngjs": "7.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "20.14.12",
+    "@types/react": "18.2.66",
+    "@types/react-dom": "18.2.22",
+    "tsx": "4.16.2",
+    "typescript": "5.5.4"
+  }
+}

@@ -2,18 +2,17 @@
 
 ## Purpose
 
-The Competitor Research Dashboard is an internal archive for historical competitor sweep reports. It gives Sales Engineers, product stakeholders, and demo-prep owners one place to:
+The Competitor Research Dashboard is a local-first internal archive for historical competitor sweep reports.
 
-- review recent competitor movement without re-running a sweep by hand
-- compare the same competitor across multiple sweep runs
-- inspect validation state and source-level coverage before using a finding in a customer conversation
-- quickly open supporting PDF and PNG artifacts when a stakeholder needs source material fast
+It is designed to help teams:
 
-The dashboard is intentionally built around **separate competitor report records**. One sweep run can create multiple competitor-specific reports, but the app does not merge competitors into a single report entity.
+- review what was pulled across time
+- browse separate competitor report entities per sweep run
+- find the newest validated competitor movement quickly
+- compare multiple runs for the same competitor
+- download report artifacts for internal prep
 
-## Competitors Covered
-
-The current dashboard model supports these competitors as first-class report entities:
+Each sweep run creates separate competitor reports for:
 
 - GitHub Copilot
 - Cursor / Bugbot
@@ -23,180 +22,165 @@ The current dashboard model supports these competitors as first-class report ent
 - Claude Code / Anthropic
 - Cubic
 
-## How To Access It
+Reports are preserved over time and are never overwritten.
 
-### Local Development
+## Access
 
-1. Seed the local archive and example artifacts:
-
-```bash
-python scripts/bootstrap_competitor_dashboard.py --reset
-```
-
-2. Start the Flask app from the repo root:
+From the repo root:
 
 ```bash
-flask --app app run
+npm install
+npm run seed
+npm run dev
 ```
 
-3. Open the dashboard home:
+Then open:
 
-```text
-/research/dashboard
-```
+- `http://localhost:3000/research/dashboard`
 
-### Important Paths
+Useful companion routes:
 
-- Dashboard home: `/research/dashboard`
-- Competitor history: `/research/competitors/<competitor-slug>`
-- Report detail: `/research/reports/<report-id>`
-- Findings search: `/research/findings`
-- Source ledger: `/research/sources`
-- Product spec and operating notes: `/research/settings`
+- `http://localhost:3000/research/settings`
+- `http://localhost:3000/api/health`
 
-### Local Storage
+## What users can do
 
-- SQLite database: `instance/competitor_dashboard.sqlite3`
-- Generated example artifacts: `outputs/competitor-dashboard-artifacts/`
+### Dashboard
 
-## What Users Can Do
+The archive home supports:
 
-### Dashboard Home
+- recent-first sorting
+- sticky filters that stay visible while browsing
+- shareable URL state
+- table or card view
+- saved views for common slices
 
-The home page is the report archive. It is optimized for quick filtering and recent-first scanning.
+Filters include:
 
-Users can:
-
-- filter by competitor
-- filter by date preset: last 7, 30, 49, 60, or 90 days
-- apply a custom date range
-- filter by source level coverage
-- filter by validation status
-- filter by report run ID
-- switch between table and card layouts
-- open a competitor report detail page
-- open run comparison history for one competitor
-- download linked PDF and PNG artifacts directly from archive rows/cards
-
-All filters live in URL state so the current view can be bookmarked or shared internally.
-
-### Competitor History
-
-The competitor page is for run-to-run comparison. It is useful when someone needs to answer:
-
-- “What changed for this competitor since the last sweep?”
-- “Did we already validate this claim last month?”
-- “Are we seeing a recurring gap or a one-off community signal?”
-
-### Report Detail
-
-The report detail page is where a Sales Engineer or strategist should go before reusing a finding in a demo, recap, or competitive follow-up.
-
-Each finding shows:
-
-- the claim
-- supporting details
-- why it matters
-- CodeRabbit comparison
+- competitor
+- date preset: 7, 30, 49, 60, 90 days
+- custom date range
+- source level
 - validation status
-- a source ledger split into Level 1, Level 2, and Level 3
+- report run ID
+- history band
+- latest changelog movement found or missing
+- free-text search
 
-This page is the best place to validate whether a point is safe to repeat externally.
+### Competitor history
 
-## SE Use Cases
+The competitor detail page lets users:
 
-### 1. Demo Preparation
+- inspect all runs for one competitor
+- compare report windows across time
+- review the most recent findings first
 
-Before a live demo, an SE can:
+### Report detail
 
-- filter to the competitor expected in the deal
-- limit the view to the last 30 days
-- open the most recent competitor report
-- scan validated findings first
-- pull the PDF or PNG artifact if they need a fast internal handoff
+Each report page shows:
 
-This makes it easier to tailor the demo narrative to current competitor movement rather than relying on stale battlecard memory.
+- competitor name
+- sweep run date
+- report window used
+- number of findings
+- newest finding date
+- validation coverage
+- latest changelog movement found or missing
+- PDF and PNG artifact downloads
+- recent finding log
+- source ledger grouped into Level 1, Level 2, and Level 3
 
-### 2. Objection Handling
+### Findings and sources
 
-When a prospect says a competitor recently launched or changed something, the SE can:
+The findings and sources pages support:
 
-- search the dashboard by competitor name, feature language, or source text
-- confirm whether the point is already captured in a recent sweep
-- check whether it is validated, partially validated, or still community-signal only
-- use the source ledger to decide whether the claim is safe to repeat
+- quick search
+- filtered review
+- validation-focused triage
+- source-level browsing
 
-This reduces the risk of repeating weak or unvalidated market chatter.
+## SE use cases
 
-### 3. Fast Competitive Refresh Before Calls
+Sales Engineers can use this dashboard to prep for demos and stay current on competitor movement without digging through raw sweep outputs.
 
-For late-stage calls or executive reviews, an SE can use saved views such as:
+### Before a demo
 
-- Last 30 days
-- 30-49 days
-- 49-90 days
-- Missing latest changelog
-- Community-signal only
+Use the dashboard to:
 
-This makes it easy to scan for:
+- open the latest report for the competitor most likely to come up on the call
+- filter to the last 30 days
+- focus on validated or partially validated findings
+- download the PDF or PNG artifact for a quick internal brief
 
-- current movement
-- stale coverage
-- items that still need stronger validation before use
+### During objection handling prep
 
-### 4. Internal Follow-Up Material
+Use the findings view to:
 
-After a call, an SE can use the detail page to collect:
+- search by competitor or feature area
+- isolate community-signal items that still need stronger proof
+- identify where CodeRabbit comparison language is already captured
 
-- the exact finding wording
-- the high-level implication
-- the evidence split by source level
-- any linked artifact files
+### For historical comparisons
 
-That supports clean handoff into Slack threads, internal notes, demo prep docs, or follow-up positioning work.
+Use competitor detail pages to:
 
-## Recommended Workflow For SEs
+- compare multiple runs for the same competitor
+- see whether messaging or product movement is new or recurring
+- understand whether a claim is supported by official evidence or weaker sources
 
-1. Start on `/research/dashboard`.
-2. Filter to the competitor and recent date window.
-3. Prioritize findings marked `Validated` or `Partially Validated`.
-4. Open the report detail page before repeating any claim externally.
-5. Use Level 1 and Level 2 sources first.
-6. Treat Level 3 material as supportive context unless corroborated.
+### For quick internal handoff
 
-## Data Model Summary
+Use artifact links to:
 
-The dashboard preserves history instead of overwriting it.
+- share a seeded PDF summary
+- share a PNG preview
+- give a teammate a concrete report page URL with filters preserved in the query string
 
-- `sweep_runs` stores one execution of the sweep process.
-- `competitor_reports` stores one report per competitor for that run.
-- `findings` stores the actual finding log entries.
-- `sources` stores the supporting ledger with source-level tagging.
-- `artifacts` stores downloadable files such as PDFs and PNG previews.
-- `validation_flags` stores additional review notes or warnings.
+## Recommended SE workflow
 
-## Ingestion Model
+1. Open `/research/dashboard`.
+2. Apply a competitor filter and a recent date preset.
+3. Check whether latest changelog movement was found.
+4. Open the report detail page.
+5. Review the newest findings first.
+6. Use the source ledger to distinguish official evidence from weaker community signals.
+7. Download the PDF or PNG artifact if you need a quick internal shareable asset.
 
-The ingestion path assumes one payload per sweep run.
+## Data and artifact locations
 
-That payload contains:
+Local dashboard data:
 
-- one run record
-- multiple competitor-specific reports
-- findings per competitor report
-- sources per finding or report
-- linked artifacts
+- `data/competitor-dashboard.json`
 
-Use this script to ingest a new payload:
+Generated artifacts:
 
-```bash
-python scripts/ingest_competitor_sweep.py path/to/payload.json
-```
+- `outputs/competitor-dashboard-artifacts`
 
-This preserves prior history instead of replacing older records.
+Both locations are configurable through `.env.example` and default to repo-root-relative paths.
 
-## Notes
+## How new sweep outputs get inserted
 
-- The currently seeded data is illustrative sample data for the prototype.
-- The UI and data model are ready for real sweep payload insertion.
-- The dashboard is designed to support quick internal access to recent competitor information without collapsing distinct competitors into one merged archive record.
+The current implementation ships with a local TypeScript seed flow for demo and development use.
+
+`npm run seed`:
+
+- builds the local dashboard dataset
+- creates sweep runs
+- creates separate competitor reports per run
+- creates findings, sources, and validation flags
+- generates PDF and PNG artifacts
+- writes the final dataset to `data/competitor-dashboard.json`
+
+The app reads that local dataset directly at runtime through the shared TypeScript data layer.
+
+## Reliability goals of this rewrite
+
+This version intentionally removes:
+
+- Python version drift
+- pip install failures
+- Flask dependency churn
+- ddtrace build/install issues
+- absolute-path output bugs
+
+The goal is a local workflow that works with standard Node tooling only.
