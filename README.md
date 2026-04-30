@@ -1,24 +1,126 @@
-# temp-fe
+# Competitor Research Dashboard
 
-A temporary frontend for new api functions, before we can redo them in react.
+Local-first competitor dashboard rebuilt in Next.js + TypeScript.
 
-# deployment
+## What this is
 
+This app replaces the previous Flask and Python implementation with a Node-only stack that is easy to run in a normal VS Code terminal.
+
+- Framework: Next.js App Router
+- Language: TypeScript
+- Runtime: Node.js + npm
+- Storage: local JSON file under `data/competitor-dashboard.json`
+- Artifacts: local PDF and PNG files under `outputs/competitor-dashboard-artifacts`
+
+The dashboard preserves separate competitor report records across sweep runs so users can browse historical reports, compare runs, inspect findings, and download artifacts.
+
+## Why JSON instead of SQLite
+
+SQLite would work well here, but the primary pain points called out for this migration were local setup friction and dependency churn. For the current local-first dashboard, a structured JSON store is enough to preserve history, support filtering, generate artifacts, and keep install reliability high with no native database setup.
+
+If this grows into a shared multi-user service later, the data layer can be swapped to SQLite or another database behind the same query helpers.
+
+## Local setup
+
+Requirements:
+
+- Node.js 20+
+- npm
+
+Install dependencies:
+
+```bash
+npm install
 ```
-kubectl apply -f https://raw.githubusercontent.com/ff14-advanced-market-search/temp-fe/main/kube-manifest-fe.yml
-kubectl get pods
-kubectl get service
+
+Seed the local archive and artifacts:
+
+```bash
+npm run seed
 ```
 
-# pics
+Start the app locally:
 
-<img width="1665" alt="image" src="https://github.com/ff14-advanced-market-search/temp-fe/assets/17516896/c730da24-4af4-4d07-bbdc-70c7a4436921">
+```bash
+npm run dev
+```
 
-<img width="1676" alt="image" src="https://github.com/ff14-advanced-market-search/temp-fe/assets/17516896/1a8bcb47-1631-4676-acc8-2d386ba608c9">
+Open:
 
-<img width="1674" alt="image" src="https://github.com/ff14-advanced-market-search/temp-fe/assets/17516896/0876d9f7-76fa-475b-80d7-5e4a30c570b7">
+- `http://localhost:3000/research/dashboard`
+- `http://localhost:3000/research/settings`
+- `http://localhost:3000/api/health`
 
-<img width="861" alt="image" src="https://github.com/ff14-advanced-market-search/temp-fe/assets/17516896/f03d3506-8aea-4a85-93fd-1e17615c1f6c">
+Build for production verification:
 
-<img width="856" alt="image" src="https://github.com/ff14-advanced-market-search/temp-fe/assets/17516896/885d4b82-9f2a-49ee-a0c2-31f2b4e7641f">
+```bash
+npm run build
+```
 
+## Package scripts
+
+- `npm install`
+- `npm run dev`
+- `npm run build`
+- `npm run seed`
+- `npm run typecheck`
+
+## Environment
+
+Optional environment variables are documented in `.env.example`:
+
+- `COMPETITOR_DASHBOARD_DATA_FILE`
+- `COMPETITOR_DASHBOARD_ARTIFACT_ROOT`
+
+Both paths are repo-root-relative by default.
+
+## Main routes
+
+- `/research/dashboard`: archive home with sticky filters and table/card view
+- `/research/competitors`: competitor index
+- `/research/competitors/[slug]`: per-competitor run comparison
+- `/research/runs`: sweep run history
+- `/research/reports/[reportId]`: detailed competitor report page
+- `/research/findings`: findings search and review page
+- `/research/sources`: source ledger page
+- `/research/settings`: access notes, purpose, and local operations
+
+## API routes
+
+- `/api/health`
+- `/api/reports`
+- `/api/reports/[reportId]`
+- `/api/findings`
+- `/api/sources`
+- `/api/artifacts/[artifactId]`
+
+## Seeded demo behavior
+
+`npm run seed` creates:
+
+- 3 sweep runs
+- 7 competitors
+- 21 competitor-specific reports
+- 42 findings
+- 126 sources
+- 42 artifacts
+
+Artifacts are written under:
+
+- `outputs/competitor-dashboard-artifacts`
+
+Local data is written to:
+
+- `data/competitor-dashboard.json`
+
+## Developer notes
+
+- No Python runtime is required.
+- No Flask, pip, virtualenv, ddtrace, or Python-only dependencies remain.
+- All filesystem paths are repo-root-relative.
+- The seed script emits developer-friendly logs and fails loudly if artifact generation breaks.
+
+## Additional docs
+
+- `docs/competitor_research_dashboard.md`
+- `docs/migration-notes.md`
