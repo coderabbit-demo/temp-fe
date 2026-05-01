@@ -27,9 +27,9 @@ export default async function FindingsPage({
     <div className="page">
       <section className="page-header">
         <div>
-          <span className="eyebrow">Findings</span>
-          <h1>Finding log</h1>
-          <p>Search across findings, compare validation state, and jump into detailed competitor reports.</p>
+          <span className="eyebrow">Signals</span>
+          <h1>Latest competitive signals</h1>
+          <p>Search the signal stream, focus on validated movement, and jump straight into the supporting briefing.</p>
         </div>
       </section>
 

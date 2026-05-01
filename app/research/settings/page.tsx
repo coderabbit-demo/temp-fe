@@ -21,9 +21,9 @@ export default async function SettingsPage() {
     <div className="page">
       <section className="page-header">
         <div>
-          <span className="eyebrow">Settings and docs</span>
-          <h1>Access, purpose, and local operations</h1>
-          <p>Everything needed to run the local dashboard, understand its purpose, and keep the seeded archive current.</p>
+          <span className="eyebrow">Ops and docs</span>
+          <h1>Runbook, purpose, and local operations</h1>
+          <p>Everything needed to keep the dashboard healthy, understand its audience, and operate the local archive.</p>
         </div>
       </section>
 

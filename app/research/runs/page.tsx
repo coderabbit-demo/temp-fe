@@ -23,9 +23,9 @@ export default async function RunsPage() {
     <div className="page">
       <section className="page-header">
         <div>
-          <span className="eyebrow">Runs</span>
-          <h1>Sweep runs</h1>
-          <p>One sweep run produces multiple competitor-specific report records that remain preserved over time.</p>
+          <span className="eyebrow">Run history</span>
+          <h1>Sweep timeline</h1>
+          <p>Trace how each sweep expanded the competitor archive and when the latest briefing set was generated.</p>
         </div>
       </section>
 
