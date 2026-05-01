@@ -1,3 +1,4 @@
+import { DataQualityIssueList } from "@/components/research/data-quality-issue-list";
 import { EmptyState } from "@/components/research/empty-state";
 import { formatDateTime } from "@/lib/competitor-dashboard/format";
 import { getDashboardContext } from "@/lib/competitor-dashboard/queries";
@@ -13,6 +14,8 @@ export default async function SettingsPage() {
       </div>
     );
   }
+
+  const priorityIssues = context.validation.issues.slice(0, 5);
 
   return (
     <div className="page">
@@ -44,17 +47,35 @@ export default async function SettingsPage() {
             <li>Use findings and source filters to isolate official evidence or community-signal gaps.</li>
           </ul>
         </article>
+
+        <article className="detail-panel">
+          <h2>Data quality</h2>
+          <ul className="detail-bullets">
+            <li>Health score: {context.validation.summary.healthScore}/100</li>
+            <li>Critical issues: {context.validation.summary.criticalIssues}</li>
+            <li>Warning issues: {context.validation.summary.warningIssues}</li>
+            <li>Run `npm run validate:data` to print the current issue list and fail on critical problems.</li>
+          </ul>
+        </article>
       </section>
 
       <section className="detail-grid">
         <article className="detail-panel">
           <h2>Local commands</h2>
-          <pre className="code-block">{`npm install\nnpm run seed\nnpm run dev\nnpm run build`}</pre>
+          <pre className="code-block">{`npm install\nnpm run seed\nnpm run validate:data\nnpm run dev\nnpm run build`}</pre>
         </article>
 
         <article className="detail-panel">
           <h2>Docs</h2>
           <pre className="code-block">{`README.md\ndocs/competitor_research_dashboard.md\ndocs/migration-notes.md`}</pre>
+        </article>
+
+        <article className="detail-panel">
+          <h2>Current validation flags</h2>
+          <DataQualityIssueList
+            issues={priorityIssues}
+            emptyMessage="The current seeded dataset passes the duplicate/noise checks."
+          />
         </article>
       </section>
     </div>

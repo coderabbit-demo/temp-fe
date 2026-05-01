@@ -1,11 +1,8 @@
 import fs from "node:fs/promises";
 
-import {
-  artifactRootPath,
-  dataFilePath,
-  toRepoRelative
-} from "@/lib/competitor-dashboard/paths";
+import { artifactRootPath } from "@/lib/competitor-dashboard/paths";
 import { loadDashboardData } from "@/lib/competitor-dashboard/store";
+import { validateDashboardData } from "@/lib/competitor-dashboard/validation";
 
 export const dynamic = "force-dynamic";
 
@@ -18,15 +15,15 @@ export async function GET() {
       .catch(() => false)
   ]);
   const ok = Boolean(data) && artifactStat;
+  const validation = data ? validateDashboardData(data) : null;
 
   return Response.json(
     {
       ok,
-      dataFile: toRepoRelative(dataFilePath()),
-      artifactRoot: toRepoRelative(artifactRootPath()),
       hasSeedData: Boolean(data),
       artifactRootExists: artifactStat,
-      lastSeededAt: data?.lastSeededAt ?? null
+      lastSeededAt: data?.lastSeededAt ?? null,
+      dataQuality: validation?.summary ?? null
     },
     {
       status: ok ? 200 : 503

@@ -1,10 +1,12 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { DataQualityIssueList } from "@/components/research/data-quality-issue-list";
 import { EmptyState } from "@/components/research/empty-state";
 import { StatusChip } from "@/components/research/status-chip";
 import { formatDate, formatDateTime, formatPercent } from "@/lib/competitor-dashboard/format";
 import { getDashboardContext, getReportDetail } from "@/lib/competitor-dashboard/queries";
+import { getIssuesForFinding, getIssuesForReport } from "@/lib/competitor-dashboard/validation";
 
 export default async function ReportDetailPage({
   params
@@ -28,6 +30,8 @@ export default async function ReportDetailPage({
     notFound();
   }
 
+  const reportIssues = getIssuesForReport(context.validation, detail.report.id);
+
   return (
     <div className="page">
       <section className="page-header">
@@ -48,6 +52,10 @@ export default async function ReportDetailPage({
           <article className="metric-card">
             <span>Validation</span>
             <strong>{formatPercent(detail.report.validationCoverage)}</strong>
+          </article>
+          <article className="metric-card">
+            <span>Data quality</span>
+            <strong>{reportIssues.length ? `${reportIssues.length} issue(s)` : "Clean"}</strong>
           </article>
         </div>
       </section>
@@ -102,48 +110,66 @@ export default async function ReportDetailPage({
             </div>
           </dl>
         </article>
+
+        <article className="detail-panel">
+          <h2>Data quality</h2>
+          <DataQualityIssueList
+            issues={reportIssues}
+            emptyMessage="This report has no duplicate-claim, duplicate-source, or missing-reference issues."
+          />
+        </article>
       </section>
 
       <section className="stack">
         <h2>Recent finding log</h2>
-        {detail.findings.map((finding) => (
-          <article key={finding.id} className="finding-card">
-            <div className="finding-card__header">
-              <div>
-                <h3>{finding.claim}</h3>
-                <p>{formatDateTime(finding.createdAt)}</p>
+        {detail.findings.map((finding) => {
+          const findingIssues = getIssuesForFinding(context.validation, finding.id);
+
+          return (
+            <article key={finding.id} className="finding-card">
+              <div className="finding-card__header">
+                <div>
+                  <h3>{finding.claim}</h3>
+                  <p>{formatDateTime(finding.createdAt)}</p>
+                </div>
+                <StatusChip status={finding.validationStatus} />
               </div>
-              <StatusChip status={finding.validationStatus} />
-            </div>
-            <div className="finding-card__body">
-              <p>
-                <strong>Supporting details:</strong> {finding.supportingDetails}
-              </p>
-              <p>
-                <strong>Why it matters:</strong> {finding.whyItMatters}
-              </p>
-              <p>
-                <strong>CodeRabbit comparison:</strong> {finding.codeRabbitComparison}
-              </p>
-            </div>
-            <div className="source-ledger">
-              {[1, 2, 3].map((level) => {
-                const levelSources = finding.sources.filter((source) => source.level === level);
-                return (
-                  <div key={level} className="source-ledger__column">
-                    <h4>Level {level}</h4>
-                    {levelSources.map((source) => (
-                      <a key={source.id} href={source.url} target="_blank" rel="noreferrer">
-                        <strong>{source.title}</strong>
-                        <span>{source.excerpt}</span>
-                      </a>
-                    ))}
-                  </div>
-                );
-              })}
-            </div>
-          </article>
-        ))}
+              <div className="finding-card__body">
+                <p>
+                  <strong>Supporting details:</strong> {finding.supportingDetails}
+                </p>
+                <p>
+                  <strong>Why it matters:</strong> {finding.whyItMatters}
+                </p>
+                <p>
+                  <strong>CodeRabbit comparison:</strong> {finding.codeRabbitComparison}
+                </p>
+              </div>
+              {findingIssues.length ? (
+                <div className="finding-card__quality">
+                  <h4>Data quality flags</h4>
+                  <DataQualityIssueList issues={findingIssues} />
+                </div>
+              ) : null}
+              <div className="source-ledger">
+                {[1, 2, 3].map((level) => {
+                  const levelSources = finding.sources.filter((source) => source.level === level);
+                  return (
+                    <div key={level} className="source-ledger__column">
+                      <h4>Level {level}</h4>
+                      {levelSources.map((source) => (
+                        <a key={source.id} href={source.url} target="_blank" rel="noreferrer">
+                          <strong>{source.title}</strong>
+                          <span>{source.excerpt}</span>
+                        </a>
+                      ))}
+                    </div>
+                  );
+                })}
+              </div>
+            </article>
+          );
+        })}
       </section>
     </div>
   );

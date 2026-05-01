@@ -54,6 +54,7 @@ The archive home supports:
 - shareable URL state
 - table or card view
 - saved views for common slices
+- report-level data quality visibility for duplicate/noise checks
 
 Filters include:
 
@@ -170,6 +171,23 @@ The current implementation ships with a local TypeScript seed flow for demo and 
 - creates findings, sources, and validation flags
 - generates PDF and PNG artifacts
 - writes the final dataset to `data/competitor-dashboard.json`
+- validates the seeded dataset and reports a health score
+
+### Data validation command
+
+Use:
+
+```bash
+npm run validate:data
+```
+
+This command:
+
+- checks for duplicate claims within a report
+- checks for repeated supporting details within a report
+- checks for duplicate source URLs or titles within a finding
+- checks for missing report, finding, competitor, or source references
+- exits non-zero if critical data issues are present
 
 The app reads that local dataset directly at runtime through the shared TypeScript data layer.
 

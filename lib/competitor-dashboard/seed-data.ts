@@ -55,6 +55,80 @@ const runTemplates: Array<{
   }
 ];
 
+const findingThemes = [
+  {
+    key: "review-depth",
+    claim: "deeper pull-request analysis",
+    evidence: "review summaries, inline explanations, and decision support",
+    whyItMatters: "showing a stronger quality story during technical evaluations",
+    comparison: "CodeRabbit's review depth and precision"
+  },
+  {
+    key: "workflow-automation",
+    claim: "workflow automation around triage",
+    evidence: "handoff flows, approvals, and repetitive follow-up reduction",
+    whyItMatters: "reducing seller and SE prep time before meetings",
+    comparison: "CodeRabbit's automation coverage across the PR lifecycle"
+  },
+  {
+    key: "enterprise-governance",
+    claim: "enterprise governance controls",
+    evidence: "policy enforcement, auditability, and safer rollout posture",
+    whyItMatters: "answering buyer concerns from security-minded accounts",
+    comparison: "CodeRabbit's enterprise readiness and control surface"
+  },
+  {
+    key: "platform-reach",
+    claim: "platform reach beyond the IDE",
+    evidence: "PR workflows, shared review surfaces, and team collaboration",
+    whyItMatters: "positioning the product for broader go-to-market teams",
+    comparison: "CodeRabbit's usefulness outside single-user coding loops"
+  },
+  {
+    key: "evidence-quality",
+    claim: "stronger evidence packaging",
+    evidence: "release notes, documentation, and proof points buyers can verify",
+    whyItMatters: "keeping competitive talk tracks grounded in source-backed proof",
+    comparison: "CodeRabbit's validation discipline and source quality"
+  },
+  {
+    key: "adoption-story",
+    claim: "team adoption and rollout messaging",
+    evidence: "onboarding cues, rollout framing, and change-management language",
+    whyItMatters: "helping account teams explain business value faster",
+    comparison: "CodeRabbit's path from trial to broader team usage"
+  },
+  {
+    key: "measurement",
+    claim: "measurement and reporting hooks",
+    evidence: "visibility into outcomes, review coverage, and operational signal",
+    whyItMatters: "giving AEs and SEs a more defensible ROI narrative",
+    comparison: "CodeRabbit's measurable impact in review workflows"
+  },
+  {
+    key: "developer-experience",
+    claim: "developer experience improvements",
+    evidence: "faster loops, lower friction, and clearer next-step guidance",
+    whyItMatters: "showing practical day-to-day value instead of generic AI claims",
+    comparison: "CodeRabbit's ease of adoption in real teams"
+  }
+] as const;
+
+const levelEvidence = {
+  1: {
+    label: "official release evidence",
+    excerpt: "Official product evidence captured from the vendor-controlled release surface."
+  },
+  2: {
+    label: "documentation and repo evidence",
+    excerpt: "Secondary proof captured from documentation or public implementation evidence."
+  },
+  3: {
+    label: "community and operator signal",
+    excerpt: "Supplemental community or operator signal that needs stronger confirmation."
+  }
+} as const;
+
 export interface SeedOutput {
   data: DashboardData;
   artifacts: Artifact[];
@@ -76,26 +150,46 @@ export function buildSeedData(): SeedOutput {
       const validationCoverage = 62 + ((runIndex * 11 + competitorIndex * 5) % 36);
       const newestFindingDate = shiftDate(run.generatedAt, competitorIndex);
       const findingIds: string[] = [];
+      const reportThemes = [
+        pickTheme(runIndex, competitorIndex, 0),
+        pickTheme(runIndex, competitorIndex, 1)
+      ];
 
       for (const findingIndex of [0, 1]) {
         const findingId = `${reportId}-finding-${findingIndex + 1}`;
         const validationFlagId = `${findingId}-flag`;
         const sourceIds: string[] = [];
         const findingDate = shiftDate(newestFindingDate, findingIndex);
+        const theme = reportThemes[findingIndex];
+        const narrative = buildFindingNarrative({
+          competitorName: competitor.name,
+          competitorShortName: competitor.shortName,
+          competitorCategory: competitor.category,
+          runLabel: run.label,
+          reportWindowLabel: run.reportWindowLabel,
+          findingIndex,
+          theme
+        });
 
         for (const level of [1, 2, 3] as const) {
           const sourceId = `${findingId}-source-${level}`;
+          const evidence = levelEvidence[level];
           sourceIds.push(sourceId);
           sources.push({
             id: sourceId,
             reportId,
             findingId,
             level,
-            title: `${competitor.shortName} source L${level} for ${run.reportWindowLabel}`,
+            title: `${competitor.shortName} ${theme.claim} ${evidence.label}`,
             url: `https://example.com/${competitor.slug}/${run.id}/finding-${findingIndex + 1}/level-${level}`,
             publishedAt: shiftDate(findingDate, level),
-            excerpt: `${competitor.shortName} evidence captured at level ${level} for the seeded local dashboard.`,
-            tags: level === 1 ? ["official", "product"] : level === 2 ? ["github", "docs"] : ["community"]
+            excerpt: `${evidence.excerpt} Captured for ${competitor.shortName} during ${run.label}.`,
+            tags:
+              level === 1
+                ? ["official", theme.key]
+                : level === 2
+                  ? ["docs", theme.key]
+                  : ["community", theme.key]
           });
         }
 
@@ -113,15 +207,16 @@ export function buildSeedData(): SeedOutput {
           competitorId: competitor.id,
           createdAt: findingDate,
           newestSourceDate: sourceIds.length ? shiftDate(findingDate, 1) : findingDate,
-          claim: `${competitor.shortName} shipped movement relevant to pull-request review workflows in the ${run.reportWindowLabel.toLowerCase()}.`,
-          supportingDetails: `Seeded competitor report details for ${competitor.name} in ${run.label}, covering product changes, positioning, and review workflow claims.`,
-          whyItMatters: `Sales Engineers can use this item to compare CodeRabbit against ${competitor.shortName} during demos and competitive follow-up.`,
-          codeRabbitComparison: `CodeRabbit should be positioned against ${competitor.shortName} on review depth, validation quality, and PR workflow speed for this seeded example.`,
+          claim: narrative.claim,
+          supportingDetails: narrative.supportingDetails,
+          whyItMatters: narrative.whyItMatters,
+          codeRabbitComparison: narrative.codeRabbitComparison,
           validationStatus: status,
           sourceIds,
           validationFlagIds: [validationFlagId],
           tags: [
             competitor.shortName.toLowerCase(),
+            theme.key,
             run.reportWindowDays > 30 ? "historical" : "recent",
             latestMovementFound ? "release-movement" : "needs-follow-up"
           ]
@@ -151,10 +246,15 @@ export function buildSeedData(): SeedOutput {
         validationCoverage,
         latestMovementFound,
         sourceCoverage: { level1: 2, level2: 2, level3: 2 },
-        summary: `${competitor.name} archive report from ${run.label}, preserved as a separate entity for time-based comparison.`,
+        summary: `${competitor.name} snapshot from ${run.label}, focused on ${reportThemes[0].claim} and ${reportThemes[1].claim} with source-backed differentiation for go-to-market teams.`,
         artifactIds: [`${reportId}-pdf`, `${reportId}-png`],
         validationFlagIds: [reportFlagId],
-        tags: [competitor.shortName.toLowerCase(), run.reportWindowLabel.toLowerCase()]
+        tags: [
+          competitor.shortName.toLowerCase(),
+          reportThemes[0].key,
+          reportThemes[1].key,
+          run.reportWindowLabel.toLowerCase()
+        ]
       });
     }
   }
@@ -201,4 +301,37 @@ function shiftDate(baseIso: string, offsetDays: number): string {
   const date = new Date(baseIso);
   date.setUTCDate(date.getUTCDate() - offsetDays);
   return date.toISOString();
+}
+
+function pickTheme(runIndex: number, competitorIndex: number, findingIndex: number) {
+  return findingThemes[(runIndex * 3 + competitorIndex + findingIndex) % findingThemes.length];
+}
+
+function buildFindingNarrative({
+  competitorName,
+  competitorShortName,
+  competitorCategory,
+  runLabel,
+  reportWindowLabel,
+  findingIndex,
+  theme
+}: {
+  competitorName: string;
+  competitorShortName: string;
+  competitorCategory: string;
+  runLabel: string;
+  reportWindowLabel: string;
+  findingIndex: number;
+  theme: (typeof findingThemes)[number];
+}) {
+  const audience = findingIndex === 0 ? "SEs" : "AEs and sales leaders";
+  const timeLens = findingIndex === 0 ? "current-state competitive prep" : "follow-up messaging";
+  const categoryContext = competitorCategory.toLowerCase();
+
+  return {
+    claim: `${competitorShortName} emphasized ${theme.claim} in the ${reportWindowLabel.toLowerCase()} captured by ${runLabel}.`,
+    supportingDetails: `${competitorName} showed fresh movement around ${theme.evidence} for its ${categoryContext} positioning, giving the seeded archive a concrete signal instead of repeated placeholder copy.`,
+    whyItMatters: `${audience} can use this item for ${timeLens}, especially when the buying conversation turns to ${theme.whyItMatters}.`,
+    codeRabbitComparison: `CodeRabbit should be compared against ${competitorShortName} on ${theme.comparison}, not just generic AI positioning.`
+  };
 }

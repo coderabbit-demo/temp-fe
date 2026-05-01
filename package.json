@@ -8,6 +8,8 @@
     "build": "next build",
     "start": "next start",
     "seed": "tsx scripts/seed.ts",
+    "check:api-security": "tsx scripts/check-api-security.ts",
+    "validate:data": "tsx scripts/validate-dashboard-data.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

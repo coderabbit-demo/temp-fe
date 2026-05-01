@@ -1,3 +1,4 @@
+import { toPublicArtifact } from "@/lib/competitor-dashboard/api";
 import { buildReportRows, getDashboardContext } from "@/lib/competitor-dashboard/queries";
 
 export async function GET(request: Request) {
@@ -8,7 +9,10 @@ export async function GET(request: Request) {
   }
 
   return Response.json({
-    reports: buildReportRows(context),
+    reports: buildReportRows(context).map((report) => ({
+      ...report,
+      artifacts: report.artifacts.map(toPublicArtifact)
+    })),
     lastSeededAt: context.data.lastSeededAt
   });
 }
