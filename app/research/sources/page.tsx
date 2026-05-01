@@ -24,9 +24,9 @@ export default async function SourcesPage({
     <div className="page">
       <section className="page-header">
         <div>
-          <span className="eyebrow">Sources</span>
-          <h1>Source ledger</h1>
-          <p>Filter the evidence ledger by competitor, validation state, source level, and time window.</p>
+          <span className="eyebrow">Evidence</span>
+          <h1>Evidence ledger</h1>
+          <p>Filter the proof behind each competitor briefing by level, validation state, and time window.</p>
         </div>
       </section>
 

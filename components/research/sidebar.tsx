@@ -6,12 +6,12 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
 const navItems = [
-  { href: "/research/dashboard", label: "Dashboard" },
+  { href: "/research/dashboard", label: "Overview" },
   { href: "/research/competitors", label: "Competitors" },
-  { href: "/research/runs", label: "Runs" },
-  { href: "/research/findings", label: "Findings" },
-  { href: "/research/sources", label: "Sources" },
-  { href: "/research/settings", label: "Settings" }
+  { href: "/research/findings", label: "Signals" },
+  { href: "/research/sources", label: "Evidence" },
+  { href: "/research/runs", label: "Run History" },
+  { href: "/research/settings", label: "Ops" }
 ];
 
 export function Sidebar() {
@@ -30,7 +30,7 @@ export function Sidebar() {
             <div className="text-[0.65rem] font-semibold uppercase tracking-[0.28em] text-sky-200/70">
               Internal
             </div>
-            <div className="mt-1 text-sm font-semibold">Competitor Research</div>
+            <div className="mt-1 text-sm font-semibold">Revenue Briefings</div>
           </div>
           <button
             type="button"
@@ -62,15 +62,15 @@ export function Sidebar() {
       >
         <div className="sidebar__brand">
           <span className="sidebar__eyebrow">Internal</span>
-          <h1>Competitor Research Dashboard</h1>
-          <p>Historical sweep archive for demo prep and competitive follow-up.</p>
+          <h1>Revenue-ready competitor briefings</h1>
+          <p>Turn archived sweeps into sharper talk tracks for SE demos, AE follow-up, and sales prep.</p>
         </div>
 
         <div className="rounded-[24px] border border-white/10 bg-white/5 p-4">
-          <div className="text-sm font-semibold text-white">What this shell fixes</div>
+          <div className="text-sm font-semibold text-white">What this experience is for</div>
           <p className="mt-2 text-sm leading-6 text-slate-300">
-            Better mobile navigation, cleaner card spacing, and a Tailwind-backed styling layer for the
-            next redesign pass.
+            Fast briefings, cleaner signal review, and easier competitor handoff for revenue teams that
+            do not want to dig through a raw archive.
           </p>
         </div>
 

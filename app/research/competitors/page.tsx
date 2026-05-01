@@ -26,9 +26,9 @@ export default async function CompetitorsPage() {
     <div className="page">
       <section className="page-header">
         <div>
-          <span className="eyebrow">Competitors</span>
-          <h1>Competitor report entities</h1>
-          <p>Each competitor is tracked as a separate report entity across sweep runs.</p>
+          <span className="eyebrow">Competitor briefings</span>
+          <h1>Battlecards organized by competitor</h1>
+          <p>Open the latest competitor story fast, then compare how the narrative has moved across runs.</p>
         </div>
         <div className="metric-strip">
           <article className="metric-card">
