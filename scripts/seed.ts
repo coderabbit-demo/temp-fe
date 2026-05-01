@@ -5,6 +5,7 @@ import { writeReportArtifacts } from "@/lib/competitor-dashboard/artifacts";
 import { artifactRootPath } from "@/lib/competitor-dashboard/paths";
 import { buildSeedData } from "@/lib/competitor-dashboard/seed-data";
 import { saveDashboardData } from "@/lib/competitor-dashboard/store";
+import { validateDashboardData } from "@/lib/competitor-dashboard/validation";
 
 async function main() {
   console.log("[seed] building competitor dashboard demo data");
@@ -39,11 +40,15 @@ async function main() {
   }
 
   await saveDashboardData(seed.data);
+  const validation = validateDashboardData(seed.data);
 
   console.log("[seed] wrote data file and artifacts");
   console.log(`[seed] data file contains ${seed.data.reports.length} reports`);
   console.log(`[seed] findings: ${seed.data.findings.length}`);
   console.log(`[seed] artifacts: ${seed.data.artifacts.length}`);
+  console.log(
+    `[seed] data quality: ${validation.summary.healthScore}/100 (${validation.summary.totalIssues} issues)`
+  );
   console.log(
     `[seed] artifact root: ${path.relative(process.cwd(), artifactRoot).split(path.sep).join("/")}`
   );

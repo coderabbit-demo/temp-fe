@@ -138,3 +138,46 @@ export interface ResolvedDateRange {
   start?: string;
   end?: string;
 }
+
+export type DataQualitySeverity = "minor" | "warning" | "critical";
+
+export type DataQualityIssueCode =
+  | "missing_competitor_reference"
+  | "missing_run_reference"
+  | "missing_report_reference"
+  | "missing_finding_reference"
+  | "missing_source_reference"
+  | "duplicate_claim_within_report"
+  | "duplicate_supporting_details_within_report"
+  | "repeated_claim_across_history"
+  | "duplicate_source_url_within_finding"
+  | "duplicate_source_title_within_finding";
+
+export interface DataQualityIssue {
+  id: string;
+  severity: DataQualitySeverity;
+  code: DataQualityIssueCode;
+  message: string;
+  competitorId?: string;
+  reportId?: string;
+  findingIds?: string[];
+  sourceIds?: string[];
+}
+
+export interface DashboardValidationSummary {
+  totalIssues: number;
+  criticalIssues: number;
+  warningIssues: number;
+  minorIssues: number;
+  reportsWithIssues: number;
+  findingsWithIssues: number;
+  sourcesWithIssues: number;
+  repetitiveClaimGroups: number;
+  duplicateSourceGroups: number;
+  healthScore: number;
+}
+
+export interface DashboardValidationResult {
+  summary: DashboardValidationSummary;
+  issues: DataQualityIssue[];
+}

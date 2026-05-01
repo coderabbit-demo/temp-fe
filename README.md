@@ -63,6 +63,7 @@ npm run build
 - `npm run dev`
 - `npm run build`
 - `npm run seed`
+- `npm run validate:data`
 - `npm run typecheck`
 
 ## Environment
@@ -105,6 +106,8 @@ Both paths are repo-root-relative by default.
 - 126 sources
 - 42 artifacts
 
+It also reseeds the dataset with non-repetitive competitor narratives and prints a data-quality score for the local archive.
+
 Artifacts are written under:
 
 - `outputs/competitor-dashboard-artifacts`
@@ -119,6 +122,7 @@ Local data is written to:
 - No Flask, pip, virtualenv, ddtrace, or Python-only dependencies remain.
 - All filesystem paths are repo-root-relative.
 - The seed script emits developer-friendly logs and fails loudly if artifact generation breaks.
+- `npm run validate:data` prints duplicate/noise checks and exits non-zero when critical data issues exist.
 
 ## Additional docs
 

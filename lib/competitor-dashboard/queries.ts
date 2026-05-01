@@ -5,12 +5,14 @@ import {
   resolveDateRange
 } from "@/lib/competitor-dashboard/filters";
 import { loadDashboardData } from "@/lib/competitor-dashboard/store";
+import { validateDashboardData } from "@/lib/competitor-dashboard/validation";
 import type {
   Artifact,
   Competitor,
   CompetitorReport,
   DashboardData,
   DashboardFilters,
+  DashboardValidationResult,
   Finding,
   Source
 } from "@/lib/competitor-dashboard/types";
@@ -19,6 +21,7 @@ interface DashboardContext {
   data: DashboardData;
   filters: DashboardFilters;
   referenceDate: string;
+  validation: DashboardValidationResult;
 }
 
 export async function getDashboardContext(
@@ -31,8 +34,9 @@ export async function getDashboardContext(
 
   const filters = rawFilters instanceof URLSearchParams ? normalizeFilters(rawFilters) : normalizeFilters(rawFilters);
   const referenceDate = data.lastSeededAt || data.generatedAt;
+  const validation = validateDashboardData(data);
 
-  return { data, filters, referenceDate };
+  return { data, filters, referenceDate, validation };
 }
 
 export function buildReportRows(context: DashboardContext): Array<
