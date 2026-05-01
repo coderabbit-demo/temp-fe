@@ -63,6 +63,7 @@ npm run build
 - `npm run dev`
 - `npm run build`
 - `npm run seed`
+- `npm run check:api-security`
 - `npm run validate:data`
 - `npm run typecheck`
 
@@ -122,6 +123,7 @@ Local data is written to:
 - No Flask, pip, virtualenv, ddtrace, or Python-only dependencies remain.
 - All filesystem paths are repo-root-relative.
 - The seed script emits developer-friendly logs and fails loudly if artifact generation breaks.
+- `npm run check:api-security` verifies that the critical API routes do not leak internal storage paths and still serve the expected public contract.
 - `npm run validate:data` prints duplicate/noise checks and exits non-zero when critical data issues exist.
 
 ## Additional docs

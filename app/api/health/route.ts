@@ -1,10 +1,6 @@
 import fs from "node:fs/promises";
 
-import {
-  artifactRootPath,
-  dataFilePath,
-  toRepoRelative
-} from "@/lib/competitor-dashboard/paths";
+import { artifactRootPath } from "@/lib/competitor-dashboard/paths";
 import { loadDashboardData } from "@/lib/competitor-dashboard/store";
 import { validateDashboardData } from "@/lib/competitor-dashboard/validation";
 
@@ -24,8 +20,6 @@ export async function GET() {
   return Response.json(
     {
       ok,
-      dataFile: toRepoRelative(dataFilePath()),
-      artifactRoot: toRepoRelative(artifactRootPath()),
       hasSeedData: Boolean(data),
       artifactRootExists: artifactStat,
       lastSeededAt: data?.lastSeededAt ?? null,
