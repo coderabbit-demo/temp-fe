@@ -8,6 +8,7 @@ This app replaces the previous Flask and Python implementation with a Node-only 
 
 - Framework: Next.js App Router
 - Language: TypeScript
+- Styling: Tailwind-backed design system for the dashboard shell and shared UI
 - Runtime: Node.js + npm
 - Storage: local JSON file under `data/competitor-dashboard.json`
 - Artifacts: local PDF and PNG files under `outputs/competitor-dashboard-artifacts`
