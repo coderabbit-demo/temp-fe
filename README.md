@@ -2,6 +2,8 @@
 
 Local-first competitor dashboard rebuilt in Next.js + TypeScript.
 
+This README includes a second harmless smoke-test sentence for validating CodeRabbit retry reviews.
+
 ## What this is
 
 This app replaces the previous Flask and Python implementation with a Node-only stack that is easy to run in a normal VS Code terminal.
